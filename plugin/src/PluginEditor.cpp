@@ -43,22 +43,28 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
     AudioPluginAudioProcessor& p)
     : AudioProcessorEditor(&p),
       processorRef(p),
-      webView{
-          juce::WebBrowserComponent::Options{}
-              .withBackend(
-                  juce::WebBrowserComponent::Options::Backend::webview2)
-              .withWinWebView2Options(
-                  juce::WebBrowserComponent::Options::WinWebView2{}
-                      .withUserDataFolder(juce::File::getSpecialLocation(
-                          juce::File::tempDirectory))
-                      .withBackgroundColour(juce::Colours::white))
-              .withResourceProvider(
-                  [this](const auto& url) { return getResource(url); })
-              .withNativeIntegrationEnabled()
-              .withUserScript(R"(console.log("C++ backend");)")
-              .withInitialisationData("vendor", JUCE_COMPANY_NAME)
-              .withInitialisationData("pluginName", JUCE_PRODUCT_NAME)
-              .withInitialisationData("pluginVersion", JUCE_PRODUCT_VERSION)} {
+      webView{juce::WebBrowserComponent::Options{}
+                  .withBackend(
+                      juce::WebBrowserComponent::Options::Backend::webview2)
+                  .withWinWebView2Options(
+                      juce::WebBrowserComponent::Options::WinWebView2{}
+                          .withUserDataFolder(juce::File::getSpecialLocation(
+                              juce::File::tempDirectory))
+                          .withBackgroundColour(juce::Colours::white))
+                  .withResourceProvider(
+                      [this](const auto& url) { return getResource(url); })
+                  .withNativeIntegrationEnabled()
+                  .withUserScript(R"(console.log("C++ backend");)")
+                  .withInitialisationData("vendor", JUCE_COMPANY_NAME)
+                  .withInitialisationData("pluginName", JUCE_PRODUCT_NAME)
+                  .withInitialisationData("pluginVersion", JUCE_PRODUCT_VERSION)
+                  .withNativeFunction(
+                      juce::Identifier{"nativeFunction"},
+                      [this](const juce::Array<juce::var>& args,
+                             juce::WebBrowserComponent::NativeFunctionCompletion
+                                 completion) {
+                        nativeFunction(args, std::move(completion));
+                      })} {
   juce::ignoreUnused(processorRef);
 
   addAndMakeVisible(webView);
@@ -89,6 +95,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 
   addAndMakeVisible(emitJavaScriptButton);
 
+  addAndMakeVisible(labelUpdatedFromJavaScript);
+
   setResizable(true, true);
   setSize(800, 600);
 }
@@ -98,8 +106,10 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
 void AudioPluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds();
   webView.setBounds(bounds.removeFromRight(getWidth() / 2));
+
   runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
   emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+  labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
 }
 
 auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url)
@@ -121,6 +131,21 @@ auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url)
   }
 
   return std::nullopt;
+}
+
+void AudioPluginAudioProcessorEditor::nativeFunction(
+    const juce::Array<juce::var>& args,
+    juce::WebBrowserComponent::NativeFunctionCompletion completion) {
+  juce::String concatenatedArgs;
+
+  for (const auto& arg : args) {
+    concatenatedArgs += arg.toString();
+  }
+
+  labelUpdatedFromJavaScript.setText("Native function:" + concatenatedArgs,
+                                     juce::dontSendNotification);
+
+  completion("nativeFunction callback: All OK!");
 }
 
 }  // namespace webview_plugin

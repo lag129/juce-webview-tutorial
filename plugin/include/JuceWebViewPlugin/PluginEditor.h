@@ -16,12 +16,19 @@ class AudioPluginAudioProcessorEditor final
   using Resource = juce::WebBrowserComponent::Resource;
   std::optional<Resource> getResource(const juce::String& url);
 
+  void nativeFunction(
+      const juce::Array<juce::var>& args,
+      juce::WebBrowserComponent::NativeFunctionCompletion completion);
+
   // This reference is provided as a quick way for your editor to
   // access the processor object that created it.
   AudioPluginAudioProcessor& processorRef;
 
   juce::TextButton runJavaScriptButton{"Run some JavaScript"};
   juce::TextButton emitJavaScriptButton{"Emit JavaScript event"};
+
+  juce::Label labelUpdatedFromJavaScript{"label",
+                                         "To be update from JavaScript"};
 
   juce::WebBrowserComponent webView;
 
