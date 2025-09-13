@@ -64,6 +64,15 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
                              juce::WebBrowserComponent::NativeFunctionCompletion
                                  completion) {
                         nativeFunction(args, std::move(completion));
+                      })
+                  .withEventListener(
+                      "exampleJavaScriptEvent",
+                      [this](juce::var objectFrontend) {
+                        labelUpdatedFromJavaScript.setText(
+                            "example JavaScript event occurred:" +
+                                objectFrontend.getProperty("emittedCount", 0)
+                                    .toString(),
+                            juce::dontSendNotification);
                       })} {
   juce::ignoreUnused(processorRef);
 

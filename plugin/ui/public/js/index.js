@@ -24,4 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log(result);
     });
   });
+
+  let emittedCount = 0;
+
+  const emitEventButton = document.getElementById("emitEventButton");
+  emitEventButton.addEventListener("click", () => {
+    window.__JUCE__.backend.emitEvent("exampleJavaScriptEvent", {
+      emittedCount: emittedCount,
+    });
+  });
 });
