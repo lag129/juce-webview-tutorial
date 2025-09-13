@@ -6,6 +6,7 @@ juce_add_plugin(JuceWebViewPlugin
     PLUGIN_MANUFACTURE_CODE lag129
     PLUGIN_CODE JWVT
     FORMATS AU VST3 Standalone
+    NEEDS_WEBVIEW2 TRUE
 )
 
 target_sources(JuceWebViewPlugin
@@ -25,4 +26,5 @@ target_compile_definitions(JuceWebViewPlugin
     PUBLIC
         JUCE_WEB_BROWSER=1
         JUCE_USE_CURL=0
-        JUCE_VST3_CAN_REPLACE_VST2=0)
+        JUCE_VST3_CAN_REPLACE_VST2=0
+        JUCE_USE_WIN_WEBVIEW2_WITH_STATIC_LINKING=1)
