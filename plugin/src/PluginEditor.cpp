@@ -43,17 +43,22 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
     AudioPluginAudioProcessor& p)
     : AudioProcessorEditor(&p),
       processorRef(p),
-      webView{juce::WebBrowserComponent::Options{}
-                  .withBackend(
-                      juce::WebBrowserComponent::Options::Backend::webview2)
-                  .withWinWebView2Options(
-                      juce::WebBrowserComponent::Options::WinWebView2{}
-                          .withUserDataFolder(juce::File::getSpecialLocation(
-                              juce::File::tempDirectory))
-                          .withBackgroundColour(juce::Colours::white))
-                  .withResourceProvider(
-                      [this](const auto& url) { return getResource(url); })
-                  .withNativeIntegrationEnabled()} {
+      webView{
+          juce::WebBrowserComponent::Options{}
+              .withBackend(
+                  juce::WebBrowserComponent::Options::Backend::webview2)
+              .withWinWebView2Options(
+                  juce::WebBrowserComponent::Options::WinWebView2{}
+                      .withUserDataFolder(juce::File::getSpecialLocation(
+                          juce::File::tempDirectory))
+                      .withBackgroundColour(juce::Colours::white))
+              .withResourceProvider(
+                  [this](const auto& url) { return getResource(url); })
+              .withNativeIntegrationEnabled()
+              .withUserScript(R"(console.log("C++ backend");)")
+              .withInitialisationData("vendor", JUCE_COMPANY_NAME)
+              .withInitialisationData("pluginName", JUCE_PRODUCT_NAME)
+              .withInitialisationData("pluginVersion", JUCE_PRODUCT_VERSION)} {
   juce::ignoreUnused(processorRef);
 
   addAndMakeVisible(webView);
@@ -77,6 +82,13 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 
   addAndMakeVisible(runJavaScriptButton);
 
+  emitJavaScriptButton.onClick = [this] {
+    static const juce::Identifier EVENT_ID{"exampleEvent"};
+    webView.emitEventIfBrowserIsVisible(EVENT_ID, 42.0);
+  };
+
+  addAndMakeVisible(emitJavaScriptButton);
+
   setResizable(true, true);
   setSize(800, 600);
 }
@@ -87,6 +99,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   auto bounds = getLocalBounds();
   webView.setBounds(bounds.removeFromRight(getWidth() / 2));
   runJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
+  emitJavaScriptButton.setBounds(bounds.removeFromTop(50).reduced(5));
 }
 
 auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url)

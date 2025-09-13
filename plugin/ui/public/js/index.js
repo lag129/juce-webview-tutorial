@@ -2,4 +2,15 @@ import * as Juce from "./juce/index.js";
 
 console.log("Hello, JS!");
 
-console.log(window.__JUCE__.backend);
+window.__JUCE__.backend.addEventListener(
+  "exampleEvent",
+  (objectFromCppBackend) => {
+    console.log(objectFromCppBackend);
+  }
+);
+
+const data = window.__JUCE__.initialisationData;
+
+document.getElementById("vendor").innerHTML = data.vendor;
+document.getElementById("pluginName").innerHTML = data.pluginName;
+document.getElementById("pluginVersion").innerHTML = data.pluginVersion;
