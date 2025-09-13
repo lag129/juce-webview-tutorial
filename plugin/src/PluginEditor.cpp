@@ -54,7 +54,8 @@ namespace webview_plugin
                                 juce::File::tempDirectory))
                             .withBackgroundColour(juce::Colours::white))
                     .withResourceProvider([this](const auto &url)
-                                          { return getResource(url); })}
+                                          { return getResource(url); })
+                    .withNativeIntegrationEnabled()}
   {
     juce::ignoreUnused(processorRef);
 
