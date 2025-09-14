@@ -5,12 +5,14 @@
 
 namespace webview_plugin {
 class AudioPluginAudioProcessorEditor final
-    : public juce::AudioProcessorEditor {
+    : public juce::AudioProcessorEditor, private juce::Timer {
  public:
   explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor&);
   ~AudioPluginAudioProcessorEditor() override;
 
   void resized() override;
+
+  void timerCallback() override;
 
  private:
   using Resource = juce::WebBrowserComponent::Resource;

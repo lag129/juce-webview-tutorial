@@ -112,6 +112,8 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
 
   setResizable(true, true);
   setSize(800, 600);
+
+  startTimer(60);
 }
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {}
@@ -125,6 +127,10 @@ void AudioPluginAudioProcessorEditor::resized() {
   labelUpdatedFromJavaScript.setBounds(bounds.removeFromTop(50).reduced(5));
 }
 
+void AudioPluginAudioProcessorEditor::timerCallback() {
+  webView.emitEventIfBrowserIsVisible("outputLevel", juce::var{});
+}
+
 auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url)
     -> std::optional<Resource> {
   std::cout << url << std::endl;
@@ -134,6 +140,16 @@ auto AudioPluginAudioProcessorEditor::getResource(const juce::String& url)
 
   const auto resourceToRetrieve =
       url == "/" ? "index.html" : url.fromFirstOccurrenceOf("/", false, false);
+
+  if (resourceToRetrieve == "outputLevel.json") {
+    juce::DynamicObject::Ptr data{new juce::DynamicObject{}};
+    data->setProperty("left", processorRef.outputLevelLeft.load());
+    const auto string = juce::JSON::toString(data.get());
+    juce::MemoryInputStream stream{string.getCharPointer(),
+                                   string.getNumBytesAsUTF8(), false};
+
+    return Resource{streamToVector(stream), juce::String("application/json")};
+  }
 
   if (resourceToRetrieve == "data.json") {
     juce::DynamicObject::Ptr data{new juce::DynamicObject{}};

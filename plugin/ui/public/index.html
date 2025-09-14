@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://cdn.plot.ly/plotly-latest.min.js"
+      charset="UTF-8"
+    ></script>
     <script type="module" src="js/index.js"></script>
     <title>JUCE8 WebView Plugin Tutorial</title>
   </head>
@@ -31,6 +35,8 @@
       </table>
       <button id="nativeFunctionButton">Call C++ Function</button>
       <button id="emitEventButton">Emit a frontend event</button>
+
+      <div id="outputLevelPlot"></div>
     </main>
   </body>
 </html>
